@@ -1,27 +1,29 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "CBox.h"
+#include "Global.h"
+#include "Components/BoxComponent.h"
+#include "Components/TextRenderComponent.h"
 
-// Sets default values
 ACBox::ACBox()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	//Create Scene Component
+	CHelpers::CreateSceneComponent(this, &Root, "Root");
+	CHelpers::CreateSceneComponent(this, &Box, "Box", Root);
+	CHelpers::CreateSceneComponent(this, &Text, "Text", Root);
+	
+	//Components Settings
+	Box->bHiddenInGame = false;
+	Box->SetRelativeScale3D(FVector(3.f));
 
+	Text->SetRelativeLocation(FVector(0, 0, 100));
+	Text->SetRelativeRotation(FRotator(0, 180, 0));
+	Text->TextRenderColor = FColor::Black;
+	Text->HorizontalAlignment = EHorizTextAligment::EHTA_Center;
+	Text->Text = FText::FromString(GetName());
 }
 
-// Called when the game starts or when spawned
 void ACBox::BeginPlay()
 {
 	Super::BeginPlay();
 	
-}
-
-// Called every frame
-void ACBox::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 

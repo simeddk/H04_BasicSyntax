@@ -15,6 +15,18 @@
 class H04_BASICSYNTAX_API CHelpers
 {
 public:
-	
+	template<typename T>
+	static void CreateSceneComponent(AActor* InActor, T** OutComp, FName InName, USceneComponent* InParent = nullptr)
+	{
+		*OutComp = InActor->CreateDefaultSubobject<T>(InName);
+
+		if (!!InParent)
+		{
+			(*OutComp)->SetupAttachment(InParent);
+			return;
+		}
+		
+		InActor->SetRootComponent(*OutComp);
+	}
 
 };

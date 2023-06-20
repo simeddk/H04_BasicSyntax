@@ -2,26 +2,23 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "CBox.generated.h"
+#include "CSpheres.generated.h"
 
 UCLASS()
-class H04_BASICSYNTAX_API ACBox : public AActor
+class H04_BASICSYNTAX_API ACSpheres : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	ACBox();
+	ACSpheres();
 
 protected:
 	virtual void BeginPlay() override;
 
-protected:
+private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USceneComponent* Root;
 
 	UPROPERTY(VisibleDefaultsOnly)
-		class UBoxComponent* Box;
-
-	UPROPERTY(VisibleDefaultsOnly)
-		class UTextRenderComponent* Text;
+		class UStaticMeshComponent* Spheres[3];
 };

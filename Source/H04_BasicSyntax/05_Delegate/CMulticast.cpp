@@ -1,5 +1,6 @@
 #include "CMulticast.h"
 #include "Global.h"
+#include "GameFramework/Character.h"
 
 void ACMulticast::BeginPlay()
 {
@@ -10,6 +11,9 @@ void ACMulticast::BeginPlay()
 
 void ACMulticast::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
+	ACharacter* character = Cast<ACharacter>(OtherActor);
+	CheckNull(character);
+
 	if (OnMulticast.IsBound())
 	{
 		int32 index = UKismetMathLibrary::RandomIntegerInRange(0, 2);

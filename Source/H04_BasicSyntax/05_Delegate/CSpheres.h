@@ -16,9 +16,17 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	UFUNCTION()
+		void Falling(int32 InIndex, FLinearColor InColor);
+
+private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USceneComponent* Root;
 
 	UPROPERTY(VisibleDefaultsOnly)
 		class UStaticMeshComponent* Spheres[3];
+
+private:
+	FVector OriginLocation[3];
+	class UMaterialInstanceDynamic* DynamicMaterials[3];
 };

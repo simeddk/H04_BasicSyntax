@@ -19,6 +19,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+public:
+	UFUNCTION(BlueprintCallable)
+		void SetColor(FLinearColor InBodyColor, FLinearColor InLogoColor);
+
+	UFUNCTION(BlueprintCallable)
+		void SetResetColor();
+
 private: //Axis Event
 	void OnMoveForward(float Axis);
 	void OnMoveRight(float Axis);
@@ -37,4 +44,7 @@ private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UCameraComponent* Camera;
 
+private:
+	class UMaterialInstanceDynamic* BodyMaterial;
+	class UMaterialInstanceDynamic* LogoMaterial;
 };

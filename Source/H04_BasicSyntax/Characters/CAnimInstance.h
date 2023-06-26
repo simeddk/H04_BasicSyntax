@@ -17,6 +17,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "OwnerPawn")
 		float Speed;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "OwnerPawn")
+		bool bEquipped;
+
 private:
-	class ACPlayer* Player;
+	class ACharacter* OnwerCharacter;
 };

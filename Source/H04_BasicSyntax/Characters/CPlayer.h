@@ -2,15 +2,18 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Weapons/IRifle.h"
 #include "CPlayer.generated.h"
 
 UCLASS()
-class H04_BASICSYNTAX_API ACPlayer : public ACharacter
+class H04_BASICSYNTAX_API ACPlayer : public ACharacter, public IIRifle
 {
 	GENERATED_BODY()
 
 public:
 	ACPlayer();
+
+	FORCEINLINE class ACRifle* GetRifle() override { return Rifle; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -37,6 +40,8 @@ private: //Action Event
 	void OnSprint();
 	void OffSprint();
 
+	void OnRifle();
+
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm;
@@ -47,4 +52,7 @@ private:
 private:
 	class UMaterialInstanceDynamic* BodyMaterial;
 	class UMaterialInstanceDynamic* LogoMaterial;
+
+private:
+	class ACRifle* Rifle;
 };

@@ -23,5 +23,7 @@ private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UParticleSystemComponent* Particle;
 
+	UPROPERTY(VisibleDefaultsOnly)
+		class UTextRenderComponent* Text;
 
 };

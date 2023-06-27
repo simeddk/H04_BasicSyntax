@@ -29,6 +29,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SetResetColor();
 
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+		void ZoomInFov();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void ZoomOutFov();
+
 private: //Axis Event
 	void OnMoveForward(float Axis);
 	void OnMoveRight(float Axis);
@@ -42,12 +49,19 @@ private: //Action Event
 
 	void OnRifle();
 
+	void OnAim();
+	void OffAim();
+
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm;
 
-	UPROPERTY(VisibleDefaultsOnly)
+protected:
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 		class UCameraComponent* Camera;
+
+private:
+	TSubclassOf<class UCUserWidget_Aim> AimWidgetClass;
 
 private:
 	class UMaterialInstanceDynamic* BodyMaterial;
@@ -55,4 +69,6 @@ private:
 
 private:
 	class ACRifle* Rifle;
+
+	class UCUserWidget_Aim* AimWidget;
 };

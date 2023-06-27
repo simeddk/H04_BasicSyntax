@@ -23,12 +23,18 @@ public:
 
 	FORCEINLINE bool IsEquipped() { return bEquipped; }
 	FORCEINLINE bool IsEquipping() { return bEquipping; }
+	FORCEINLINE bool IsAiming() { return bAiming; }
 
 	void Equip();
 	void Begin_Equip();
 	void End_Equip();
 
 	void Unequip();
+	void Begin_Unequip();
+	void End_Unequip();
+
+	void Begin_Aim();
+	void End_Aim();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Attachment")
@@ -52,4 +58,5 @@ private:
 	
 	bool bEquipped; //OnHand : true, OnHolster : false
 	bool bEquipping; //Is Playing Grap/Ungrap Montage
+	bool bAiming; //Is Mouse Right Button Pressed
 };

@@ -18,9 +18,14 @@ void UCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	CheckNull(OnwerCharacter);
 
 	Speed = OnwerCharacter->GetVelocity().Size2D();
-	
+	Direction = CalculateDirection(OnwerCharacter->GetVelocity(), OnwerCharacter->GetControlRotation());
+	Pitch = OnwerCharacter->GetBaseAimRotation().Pitch;
+
 	IIRifle* rifleCharacter = Cast<IIRifle>(OnwerCharacter);
-	if (!!rifleCharacter)
+	if (!!rifleCharacter && !!rifleCharacter->GetRifle())
+	{
 		bEquipped = rifleCharacter->GetRifle()->IsEquipped();
+		bAiming = rifleCharacter->GetRifle()->IsAiming();
+	}
 }
 

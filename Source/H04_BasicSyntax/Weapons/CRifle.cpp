@@ -67,10 +67,41 @@ void ACRifle::Begin_Equip()
 
 void ACRifle::End_Equip()
 {
-	bEquipping = false; //Todo. bEquipped -> bEquipping
+	bEquipping = false;
 }
 
 void ACRifle::Unequip()
 {
+	CheckFalse(bEquipped);
+	CheckTrue(bEquipping);
 
+	OwnerCharacter->PlayAnimMontage(UngrabMontage);
+	bEquipping = true;
+}
+
+void ACRifle::Begin_Unequip()
+{
+	bEquipped = false;
+
+	AttachToComponent
+	(
+		OwnerCharacter->GetMesh(),
+		FAttachmentTransformRules(EAttachmentRule::KeepRelative, true),
+		HolsterSocket
+	);
+}
+
+void ACRifle::End_Unequip()
+{
+	bEquipping = false;
+}
+
+void ACRifle::Begin_Aim()
+{
+	bAiming = true;
+}
+
+void ACRifle::End_Aim()
+{
+	bAiming = false;
 }

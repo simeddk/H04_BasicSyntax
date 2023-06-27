@@ -8,6 +8,7 @@
 #include "Materials/MaterialInstanceConstant.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Weapons/CRifle.h"
+#include "Widgets/CUserWidget_Aim.h"
 
 ACPlayer::ACPlayer()
 {
@@ -36,6 +37,7 @@ ACPlayer::ACPlayer()
 	SpringArm->TargetArmLength = 200.f;
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->bUsePawnControlRotation = true;
+	SpringArm->SocketOffset = FVector(0, 60, 0);
 
 	//<Camera>
 	Camera->SetupAttachment(SpringArm);
@@ -44,6 +46,12 @@ ACPlayer::ACPlayer()
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
+
+	//Get AimWidget Class Asset
+	ConstructorHelpers::FClassFinder<UCUserWidget_Aim> asset(TEXT("WidgetBlueprint'/Game/Widgets/WB_Aim.WB_Aim_C'"));
+	if (asset.Succeeded())
+		AimWidgetClass = asset.Class;
+	//Todo -> CHelpers::GetAsset<T>();
 }
 
 void ACPlayer::BeginPlay()
@@ -67,6 +75,13 @@ void ACPlayer::BeginPlay()
 
 	//Spawn Rifle
 	Rifle = ACRifle::Spawn(GetWorld(), this);
+
+	OnRifle();
+	
+	//Create Aim Widget
+	AimWidget = CreateWidget<UCUserWidget_Aim, APlayerController>(GetController<APlayerController>(), AimWidgetClass);
+	AimWidget->AddToViewport();
+	//Todo. 조준점이 처음부터 보일 필요가 없음.
 }
 
 void ACPlayer::Tick(float DeltaTime)
@@ -82,13 +97,18 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	//Axis Event
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACPlayer::OnMoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACPlayer::OnMoveRight);
+
 	PlayerInputComponent->BindAxis("HorizontalLook", this, &ACPlayer::OnHorizontalLook);
 	PlayerInputComponent->BindAxis("VerticalLook", this, &ACPlayer::OnVerticalLook);
 
 	//Action Event
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Pressed, this, &ACPlayer::OnSprint);
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Released, this, &ACPlayer::OffSprint);
+
 	PlayerInputComponent->BindAction("Rifle", EInputEvent::IE_Pressed, this, &ACPlayer::OnRifle);
+
+	PlayerInputComponent->BindAction("Aim", EInputEvent::IE_Pressed, this, &ACPlayer::OnAim);
+	PlayerInputComponent->BindAction("Aim", EInputEvent::IE_Released, this, &ACPlayer::OffAim);
 }
 
 void ACPlayer::SetColor(FLinearColor InBodyColor, FLinearColor InLogoColor)
@@ -143,10 +163,44 @@ void ACPlayer::OnRifle()
 {
 	if (Rifle->IsEquipped())
 	{
+		OffAim();
+
 		Rifle->Unequip();
 		return;
 	}
 
 	Rifle->Equip();
+}
+
+void ACPlayer::OnAim()
+{
+	CheckFalse(Rifle->IsEquipped());
+	CheckTrue(Rifle->IsEquipping());
+
+	bUseControllerRotationYaw = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+
+	SpringArm->TargetArmLength = 100.f;
+	SpringArm->SocketOffset = FVector(0, 30, 10);
+
+	ZoomInFov();
+
+	Rifle->Begin_Aim();
+}
+
+void ACPlayer::OffAim()
+{
+	CheckFalse(Rifle->IsEquipped());
+	CheckTrue(Rifle->IsEquipping());
+
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	SpringArm->TargetArmLength = 200.f;
+	SpringArm->SocketOffset = FVector(0, 60, 0);
+
+	ZoomOutFov();
+
+	Rifle->End_Aim();
 }
 

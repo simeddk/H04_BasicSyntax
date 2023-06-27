@@ -18,7 +18,16 @@ protected:
 		float Speed;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "OwnerPawn")
+		float Direction;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "OwnerPawn")
 		bool bEquipped;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "OwnerPawn")
+		bool bAiming;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "OwnerPawn")
+		float Pitch;
 
 private:
 	class ACharacter* OnwerCharacter;

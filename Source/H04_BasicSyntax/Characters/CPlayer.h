@@ -14,6 +14,10 @@ public:
 	ACPlayer();
 
 	FORCEINLINE class ACRifle* GetRifle() override { return Rifle; }
+	void GetAimInfo(FVector& OutAimStart, FVector& OutAimEnd, FVector& OutDirection) override;
+
+	virtual void OnTarget() override;
+	virtual void OffTarget() override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -52,6 +56,9 @@ private: //Action Event
 	void OnAim();
 	void OffAim();
 
+	void OnFire();
+	void OffFire();
+
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm;
@@ -69,6 +76,5 @@ private:
 
 private:
 	class ACRifle* Rifle;
-
-	class UCUserWidget_Aim* AimWidget;
+	class UCUserWidget_Aim* AimWidget;	
 };

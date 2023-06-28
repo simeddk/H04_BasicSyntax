@@ -48,10 +48,7 @@ ACPlayer::ACPlayer()
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 
 	//Get AimWidget Class Asset
-	ConstructorHelpers::FClassFinder<UCUserWidget_Aim> asset(TEXT("WidgetBlueprint'/Game/Widgets/WB_Aim.WB_Aim_C'"));
-	if (asset.Succeeded())
-		AimWidgetClass = asset.Class;
-	//Todo -> CHelpers::GetAsset<T>();
+	CHelpers::GetClass<UCUserWidget_Aim>(&AimWidgetClass, "WidgetBlueprint'/Game/Widgets/WB_Aim.WB_Aim_C'");
 }
 
 void ACPlayer::BeginPlay()
@@ -81,7 +78,7 @@ void ACPlayer::BeginPlay()
 	//Create Aim Widget
 	AimWidget = CreateWidget<UCUserWidget_Aim, APlayerController>(GetController<APlayerController>(), AimWidgetClass);
 	AimWidget->AddToViewport();
-	//Todo. 조준점이 처음부터 보일 필요가 없음.
+	AimWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void ACPlayer::Tick(float DeltaTime)
@@ -109,6 +106,9 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Aim", EInputEvent::IE_Pressed, this, &ACPlayer::OnAim);
 	PlayerInputComponent->BindAction("Aim", EInputEvent::IE_Released, this, &ACPlayer::OffAim);
+
+	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &ACPlayer::OnFire);
+	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &ACPlayer::OffFire);
 }
 
 void ACPlayer::SetColor(FLinearColor InBodyColor, FLinearColor InLogoColor)
@@ -186,6 +186,8 @@ void ACPlayer::OnAim()
 	ZoomInFov();
 
 	Rifle->Begin_Aim();
+
+	AimWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void ACPlayer::OffAim()
@@ -202,5 +204,42 @@ void ACPlayer::OffAim()
 	ZoomOutFov();
 
 	Rifle->End_Aim();
+
+	AimWidget->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void ACPlayer::OnFire()
+{
+	Rifle->Begin_Fire();
+}
+
+void ACPlayer::OffFire()
+{
+	Rifle->End_Fire();
+}
+
+void ACPlayer::GetAimInfo(FVector& OutAimStart, FVector& OutAimEnd, FVector& OutDirection)
+{
+	OutDirection = Camera->GetForwardVector();
+
+	FTransform  transform = Camera->GetComponentToWorld();
+	FVector cameraLocation = transform.GetLocation();
+	OutAimStart = cameraLocation + OutDirection * 150.f;
+
+	FVector coneDirection = UKismetMathLibrary::RandomUnitVectorInConeInDegrees(OutDirection, 0.2f);
+	coneDirection *= 3000.f;
+	OutAimEnd = OutAimStart + coneDirection;
+}
+
+void ACPlayer::OnTarget()
+{
+	CheckNull(AimWidget);
+	AimWidget->OnTarget();
+}
+
+void ACPlayer::OffTarget()
+{
+	CheckNull(AimWidget);
+	AimWidget->OffTarget();
 }
 

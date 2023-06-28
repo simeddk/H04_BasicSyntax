@@ -36,6 +36,12 @@ public:
 	void Begin_Aim();
 	void End_Aim();
 
+	void Begin_Fire();
+	void End_Fire();
+
+	UFUNCTION()
+		void Firing();
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Attachment")
 		FName HolsterSocket = "Holster_Rifle";
@@ -49,14 +55,19 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Attachment")
 		class UAnimMontage* UngrabMontage;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Attachment")
+		TSubclassOf<class UCameraShake> CameraShakeClass;
+
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USkeletalMeshComponent* Mesh;
 
 private:
 	class ACharacter* OwnerCharacter;
+	class AStaticMeshActor* OtherActor;
 	
-	bool bEquipped; //OnHand : true, OnHolster : false
-	bool bEquipping; //Is Playing Grap/Ungrap Montage
-	bool bAiming; //Is Mouse Right Button Pressed
+	bool bEquipped;		//OnHand : true, OnHolster : false
+	bool bEquipping;	//Is Playing Grap/Ungrap Montage
+	bool bAiming;		//Is Mouse Right Button Pressed
+	bool bFiring;		//Is Shooting Fire
 };

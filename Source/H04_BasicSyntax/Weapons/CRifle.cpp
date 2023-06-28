@@ -1,6 +1,9 @@
 #include "CRifle.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
+#include "Engine/StaticMeshActor.h"
+#include "IRifle.h"
+#include "Characters/CPlayer.h"
 
 ACRifle::ACRifle()
 {
@@ -15,6 +18,8 @@ ACRifle::ACRifle()
 
 	CHelpers::GetAsset(&GrabMontage, "AnimMontage'/Game/Character/Montages/Rifle_Grab_Montage.Rifle_Grab_Montage'");
 	CHelpers::GetAsset(&UngrabMontage, "AnimMontage'/Game/Character/Montages/Rifle_Ungrab_Montage.Rifle_Ungrab_Montage'");
+
+	CHelpers::GetClass(&CameraShakeClass, "Blueprint'/Game/Player/BP_FireShake.BP_FireShake_C'");
 }
 
 ACRifle* ACRifle::Spawn(UWorld* InWorld, ACharacter* InOwner)
@@ -41,6 +46,49 @@ void ACRifle::BeginPlay()
 void ACRifle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	CheckFalse(bAiming);
+
+	//Get Aim Information
+	IIRifle* rifleCharacter = Cast<IIRifle>(OwnerCharacter);
+	CheckNull(rifleCharacter);
+
+	FVector start, end, direction;
+	rifleCharacter->GetAimInfo(start, end, direction);
+
+	//LineTrace(AimWidget)
+	FCollisionQueryParams param;
+	param.AddIgnoredActor(this);
+	param.AddIgnoredActor(OwnerCharacter);
+
+	FHitResult hitResult;
+	if (GetWorld()->LineTraceSingleByChannel
+	(
+		hitResult,
+		start,
+		end,
+		ECollisionChannel::ECC_PhysicsBody,
+		param
+	))
+	{
+		OtherActor = Cast<AStaticMeshActor>(hitResult.GetActor());
+
+		if (!!OtherActor)
+		{
+			UStaticMeshComponent* meshComp = Cast<UStaticMeshComponent>(OtherActor->GetRootComponent());
+			if (!!meshComp)
+			{
+				if (meshComp->IsSimulatingPhysics())
+				{
+					rifleCharacter->OnTarget();
+					return;
+				}
+			}
+		}
+
+		rifleCharacter->OffTarget();
+	}
+
 
 }
 
@@ -104,4 +152,53 @@ void ACRifle::Begin_Aim()
 void ACRifle::End_Aim()
 {
 	bAiming = false;
+}
+
+void ACRifle::Begin_Fire()
+{
+	CheckFalse(bEquipped);
+	CheckFalse(bAiming);
+	CheckTrue(bEquipping);
+	CheckTrue(bFiring);
+
+	bFiring = true;
+
+	Firing();
+}
+
+void ACRifle::End_Fire()
+{
+	bFiring = false;
+}
+
+void ACRifle::Firing()
+{
+	//Play CameraShake
+	ACPlayer* player = Cast<ACPlayer>(OwnerCharacter);
+	if (!!player)
+	{
+		APlayerController* controller = player->GetController<APlayerController>();
+		if (!!controller)
+			controller->PlayerCameraManager->PlayCameraShake(CameraShakeClass);
+	}
+
+	//Todo. Spawn Bullet
+	//GetWorld()->SpawnActor<>(BP_ClassRef, MuzzleFlashSocketWS, CameraDir)
+
+	//Add Impluse
+	CheckNull(OtherActor);
+	UStaticMeshComponent* meshComp = Cast<UStaticMeshComponent>(OtherActor->GetRootComponent());
+	if (!!meshComp)
+	{
+		if (meshComp->BodyInstance.bSimulatePhysics == true)
+		{
+			FVector direction = OtherActor->GetActorLocation() - OwnerCharacter->GetActorLocation();
+			direction.Normalize();
+
+			FVector force = direction * 3000.f;
+
+			meshComp->AddImpulseAtLocation(force, OwnerCharacter->GetActorLocation());
+			return;
+		}
+	}
 }

@@ -9,6 +9,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Weapons/CRifle.h"
 #include "Widgets/CUserWidget_Aim.h"
+#include "Widgets/CUserWidget_Repeat.h"
 
 ACPlayer::ACPlayer()
 {
@@ -47,8 +48,9 @@ ACPlayer::ACPlayer()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 
-	//Get AimWidget Class Asset
+	//Get Widget Class Asset
 	CHelpers::GetClass<UCUserWidget_Aim>(&AimWidgetClass, "WidgetBlueprint'/Game/Widgets/WB_Aim.WB_Aim_C'");
+	CHelpers::GetClass<UCUserWidget_Repeat>(&RepeatWidgetClass, "WidgetBlueprint'/Game/Widgets/WB_Repeat.WB_Repeat_C'");
 }
 
 void ACPlayer::BeginPlay()
@@ -72,13 +74,16 @@ void ACPlayer::BeginPlay()
 
 	//Spawn Rifle
 	Rifle = ACRifle::Spawn(GetWorld(), this);
-
-	OnRifle();
+	//OnRifle();
 	
 	//Create Aim Widget
 	AimWidget = CreateWidget<UCUserWidget_Aim, APlayerController>(GetController<APlayerController>(), AimWidgetClass);
 	AimWidget->AddToViewport();
 	AimWidget->SetVisibility(ESlateVisibility::Hidden);
+
+	//Create Repeat Widget
+	RepeatWidget = CreateWidget<UCUserWidget_Repeat, APlayerController>(GetController<APlayerController>(), RepeatWidgetClass);
+	RepeatWidget->AddToViewport();
 }
 
 void ACPlayer::Tick(float DeltaTime)
@@ -109,6 +114,8 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &ACPlayer::OnFire);
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &ACPlayer::OffFire);
+
+	PlayerInputComponent->BindAction("Repeat", EInputEvent::IE_Pressed, this, &ACPlayer::OnRepeat);
 }
 
 void ACPlayer::SetColor(FLinearColor InBodyColor, FLinearColor InLogoColor)
@@ -161,14 +168,17 @@ void ACPlayer::OffSprint()
 
 void ACPlayer::OnRifle()
 {
+	//Unequip Rifle
 	if (Rifle->IsEquipped())
 	{
 		OffAim();
+		Rifle->End_Fire();
 
 		Rifle->Unequip();
 		return;
 	}
 
+	//Equip Rifle
 	Rifle->Equip();
 }
 
@@ -176,9 +186,6 @@ void ACPlayer::OnAim()
 {
 	CheckFalse(Rifle->IsEquipped());
 	CheckTrue(Rifle->IsEquipping());
-
-	bUseControllerRotationYaw = true;
-	GetCharacterMovement()->bOrientRotationToMovement = false;
 
 	SpringArm->TargetArmLength = 100.f;
 	SpringArm->SocketOffset = FVector(0, 30, 10);
@@ -194,9 +201,6 @@ void ACPlayer::OffAim()
 {
 	CheckFalse(Rifle->IsEquipped());
 	CheckTrue(Rifle->IsEquipping());
-
-	bUseControllerRotationYaw = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	SpringArm->TargetArmLength = 200.f;
 	SpringArm->SocketOffset = FVector(0, 60, 0);
@@ -216,6 +220,15 @@ void ACPlayer::OnFire()
 void ACPlayer::OffFire()
 {
 	Rifle->End_Fire();
+}
+
+void ACPlayer::OnRepeat()
+{
+	CheckTrue(Rifle->IsFiring());
+
+	Rifle->ToggleRepeat();
+
+	Rifle->IsRepeat() ? RepeatWidget->OnRepeat() : RepeatWidget->OffRepeat();
 }
 
 void ACPlayer::GetAimInfo(FVector& OutAimStart, FVector& OutAimEnd, FVector& OutDirection)

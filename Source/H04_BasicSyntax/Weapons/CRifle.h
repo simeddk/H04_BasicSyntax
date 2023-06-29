@@ -25,6 +25,10 @@ public:
 	FORCEINLINE bool IsEquipping() { return bEquipping; }
 	FORCEINLINE bool IsAiming() { return bAiming; }
 
+	FORCEINLINE bool IsFiring() { return bFiring; }
+	FORCEINLINE bool IsRepeat() { return bRepeat; }
+	FORCEINLINE void ToggleRepeat() { bRepeat = !bRepeat; }
+
 	void Equip();
 	void Begin_Equip();
 	void End_Equip();
@@ -58,6 +62,27 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Attachment")
 		TSubclassOf<class UCameraShake> CameraShakeClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Attachment")
+		TSubclassOf<class ACBullet> BulletClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Attachment")
+		class UParticleSystem* FlashParticle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Attachment")
+		class UParticleSystem* EjectParticle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Attachment")
+		class UParticleSystem* ImpactParticle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Attachment")
+		class USoundCue* FireSoundCue;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Attachment")
+		class UMaterialInstanceConstant* Decal;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Attachment")
+		float PitchSpeed = 0.25f;
+
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USkeletalMeshComponent* Mesh;
@@ -70,4 +95,9 @@ private:
 	bool bEquipping;	//Is Playing Grap/Ungrap Montage
 	bool bAiming;		//Is Mouse Right Button Pressed
 	bool bFiring;		//Is Shooting Fire
+	bool bRepeat;		//Is Repeat Firing
+
+	FTimerHandle RepeatTimer;
+
+	float Pitch;
 };

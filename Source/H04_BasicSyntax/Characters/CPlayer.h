@@ -59,6 +59,8 @@ private: //Action Event
 	void OnFire();
 	void OffFire();
 
+	void OnRepeat();
+
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm;
@@ -69,6 +71,7 @@ protected:
 
 private:
 	TSubclassOf<class UCUserWidget_Aim> AimWidgetClass;
+	TSubclassOf<class UCUserWidget_Repeat> RepeatWidgetClass;
 
 private:
 	class UMaterialInstanceDynamic* BodyMaterial;
@@ -76,5 +79,7 @@ private:
 
 private:
 	class ACRifle* Rifle;
-	class UCUserWidget_Aim* AimWidget;	
+
+	class UCUserWidget_Aim* AimWidget;
+	class UCUserWidget_Repeat* RepeatWidget;
 };

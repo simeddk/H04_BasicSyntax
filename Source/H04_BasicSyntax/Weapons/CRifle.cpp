@@ -200,6 +200,8 @@ void ACRifle::End_Fire()
 
 	if (bRepeat == true)
 		GetWorld()->GetTimerManager().ClearTimer(RepeatTimer);
+
+
 }
 
 void ACRifle::Firing()
